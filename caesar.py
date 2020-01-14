@@ -11,11 +11,11 @@ import sys
 # The encryption/decryption key:
 if len(sys.argv) < 1:
     key = 0
-    print('shift:' + str(key) + '\n')
+    # print('shift:' + str(key) + '\n')
     mode = 'decrypt'
 else:
     key = int(sys.argv[1])
-    print('shift: ' + str(key) + '\n')
+    # print('shift: ' + str(key) + '\n')
 
 # Whether the program encrypts or decrypts:
 if len(sys.argv) > 2:
@@ -31,12 +31,17 @@ else:
     mode = 'decrypt'
 
 # Every possible symbol that can be encrypted:
-SPECIAL = '.,;:\'"<>[]{}|\/+-=()*&^%$#@!?`~_ 	\n'
+SPECIAL = '.,;:\'"<>[]{}|\\/+-=()*&^%$#@!?`~_ 	\n\t\r'
 SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 # The string to be encrypted/decrypted:
 # input = [x.replace('\n', ' ') for x in sys.stdin.readlines()]
-input = [x for x in sys.stdin.readlines()]
+if len(sys.argv) >= 4:
+    print('This program only takes input from STDIN.')
+    raise SystemExit
+else:
+    input = [x for x in sys.stdin.readlines()]
+
 output = []
 
 # Stores the encrypted/decrypted form of the message:
@@ -71,4 +76,4 @@ for i, _ in enumerate(input):
             output.append(translated)
 
 # Output the translated string:
-print(output[len(output)-1])
+print(output[len(output)-1].strip())

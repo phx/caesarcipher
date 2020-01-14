@@ -8,11 +8,15 @@
 ####################################################################
 import sys
 
+mode = None
+
 # The encryption/decryption key:
 if len(sys.argv) < 1:
     key = 0
     # print('shift:' + str(key) + '\n')
     mode = 'decrypt'
+elif '--brute' in sys.argv:
+    mode = 'bruteforce'
 else:
     key = int(sys.argv[1])
     # print('shift: ' + str(key) + '\n')
@@ -23,12 +27,12 @@ if len(sys.argv) > 2:
         mode = 'decrypt'
     elif '-e' in sys.argv[2]:
         mode = 'encrypt'
-    else:
+    elif '--brute' not in sys.argv:
         print("Must include either '-e' or '-d' flags")
         raise SystemExit
-else:
-    key = int(sys.argv[1])
-    mode = 'decrypt'
+    else:
+        key = int(sys.argv[1])
+        mode = 'decrypt'
 
 # Every possible symbol that can be encrypted:
 SPECIAL = '.,;:\'"<>[]{}|\\/+-=()*&^%$#@!?`~_ 	\n\t\r'
@@ -42,38 +46,57 @@ if len(sys.argv) >= 4:
 else:
     input = [x for x in sys.stdin.readlines()]
 
-output = []
 
-# Stores the encrypted/decrypted form of the message:
-translated = ''
+def docipher():
+    output = []
+    # Stores the encrypted/decrypted form of the message:
+    global translatedIndex
+    translated = ''
+    for i, _ in enumerate(input):
+        message = list(input[i])
+        for symbol in message:
+            symbol = symbol.upper()
+            # Note: Only symbols in the `SYMBOLS` string can be encrypted/decrypted.
+            if SPECIAL.find(symbol) == True:
+                output.append(symbol)
+            elif symbol in SYMBOLS:
+                # Perform encryption/decryption:
+                symbolIndex = SYMBOLS.find(symbol)
+                if mode == 'encrypt':
+                    translatedIndex = symbolIndex + key
+                elif mode == 'decrypt':
+                    translatedIndex = symbolIndex - key
+                elif mode == 'bruteforce':
+                    translatedIndex = symbolIndex - key
 
-for i, _ in enumerate(input):
-    message = list(input[i])
-    for symbol in message:
-        symbol = symbol.upper()
-        # Note: Only symbols in the `SYMBOLS` string can be encrypted/decrypted.
-        if SPECIAL.find(symbol) == True:
-            output.append(symbol)
-        elif symbol in SYMBOLS:
-            # Perform encryption/decryption:
-            symbolIndex = SYMBOLS.find(symbol)
-            if mode == 'encrypt':
-                translatedIndex = symbolIndex + key
-            elif mode == 'decrypt':
-                translatedIndex = symbolIndex - key
+                # Handle wrap-around, if needed:
+                if translatedIndex >= len(SYMBOLS):
+                    translatedIndex = translatedIndex - len(SYMBOLS)
+                elif translatedIndex < 0:
+                    translatedIndex = translatedIndex + len(SYMBOLS)
 
-            # Handle wrap-around, if needed:
-            if translatedIndex >= len(SYMBOLS):
-                translatedIndex = translatedIndex - len(SYMBOLS)
-            elif translatedIndex < 0:
-                translatedIndex = translatedIndex + len(SYMBOLS)
-
-            output.append(translated)
-            translated = translated + SYMBOLS[translatedIndex]
+                output.append(translated)
+                translated = translated + SYMBOLS[translatedIndex]
+            else:
+                # Append the symbol without encrypting/decrypting:
+                translated = translated + symbol
+                output.append(translated)
+        if mode == 'bruteforce':
+            # Output the translated string:
+            output = output[len(output) - 1].strip()
+            # Display every possible decryption:
+            print('Shift ' + str(key).zfill(2) + ':', output)
+            output = []
+            translated = ''
         else:
-            # Append the symbol without encrypting/decrypting:
-            translated = translated + symbol
-            output.append(translated)
+            # Output the translated string:
+            output = output[len(output) - 1].strip()
+            print(output)
 
-# Output the translated string:
-print(output[len(output)-1].strip())
+
+if __name__ == '__main__':
+    if mode == 'bruteforce':
+        for key in range(len(SYMBOLS)):
+            docipher()
+    else:
+        docipher()

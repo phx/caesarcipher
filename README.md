@@ -1,6 +1,8 @@
 # Caesar Cipher
 This is code that I modified from a couple of examples in a book to make it more useful.
-It takes `STDIN` as input.
+It takes `STDIN` as input.  Except for the bruteforce method, it also allows for case-sensitivity.
+
+In the case of bruteforce, you can usually see the shift used, then pipe the original message in with `echo [message] | ./caesar.py [shift] -d` in order to re-obtain the original case-sensitivity.
 
 ### Usage:
 

@@ -91,7 +91,15 @@ def docipher():
         else:
             # Output the translated string:
             output = output[len(output) - 1].strip()
-            print(output)
+            output_list = []
+            for c, _ in enumerate(output):
+                if message[c].isupper():
+                    output_list.append(output[c].upper())
+                else:
+                    output_list.append(output[c].lower())
+            #print(output_list)
+            #print(output)
+            print(''.join(output_list))
 
 
 if __name__ == '__main__':
